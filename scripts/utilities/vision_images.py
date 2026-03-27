@@ -158,6 +158,8 @@ floor_3_cleared_db = MultiVision(
     # Deer floor 3 cleared images
     "demonic_beasts\\floor_3_cleared_deer.png",
     "demonic_beasts\\floor_3_cleared_2_deer.png",
+    # Dogs boss screen after reset ("cleaned")
+    "demonic_beasts\\skollandhati_cleaned.png",
     image_name="floor_3_cleared_db",
 )
 available_floor = Vision("demonic_beasts\\available_floor.png")
