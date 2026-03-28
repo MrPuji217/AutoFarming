@@ -79,8 +79,8 @@ class BirdFloor4BattleStrategy(IBattleStrategy):
         else:
             # If we don't cure block-skill debuff, check if we can do a card merge
             silver_cards = np.where(card_ranks == CardRanks.SILVER.value)[0]
-            if len(silver_cards) < 3 and BirdFloor4BattleStrategy.card_turn == 0:
-                # Only do a manual card merge if it's the first card of the turn
+            if len(silver_cards) < 3 and BirdFloor4BattleStrategy.card_turn <= 1:
+                # Try a manual card merge on the first two card picks of the turn
                 if (potential_idx := self._make_silver_merge(hand_of_cards)) is not None:
                     return potential_idx
 
@@ -112,31 +112,30 @@ class BirdFloor4BattleStrategy(IBattleStrategy):
         ### DEFAULT
         # Get the next non-silver card that doesn't correspond to a RECOVERY OR a Meli AOE OR doesn't generate a merge of silver cards
         silver_ids = np.where(card_ranks == CardRanks.SILVER.value)[0]
-        # Allow playing silver cards IF we have already more than 3 silvers saved!
-        next_idx = next(
-            (
-                bronze_item
-                # Reverse the bronze_ids list to start searching from the right:
-                for bronze_item in np.where((card_ranks != CardRanks.SILVER.value) | (len(silver_ids) > 3))[0][::-1]
-                if hand_of_cards[bronze_item].card_type not in [CardTypes.GROUND, CardTypes.RECOVERY, CardTypes.NONE]
-                and not find(vio.meli_aoe, hand_of_cards[bronze_item].card_image)
-                and (
-                    (
-                        bronze_item > 0
-                        and bronze_item < len(hand_of_cards) - 1
-                        and (
-                            not determine_card_merge(
-                                hand_of_cards[bronze_item - 1],
-                                hand_of_cards[bronze_item + 1],
-                            )
-                            or hand_of_cards[bronze_item - 1].card_rank != CardRanks.SILVER
-                        )
+        # Allow playing silver cards IF we have already more than 4 silvers saved (keep at least 3 for phase 2)!
+        playable_ids = np.where((card_ranks != CardRanks.SILVER.value) | (len(silver_ids) > 4))[0][::-1]
+
+        candidates = [
+            idx
+            for idx in playable_ids
+            if hand_of_cards[idx].card_type not in [CardTypes.GROUND, CardTypes.RECOVERY, CardTypes.NONE]
+            and not find(vio.meli_aoe, hand_of_cards[idx].card_image)
+            and (
+                (
+                    idx > 0
+                    and idx < len(hand_of_cards) - 1
+                    and (
+                        not determine_card_merge(hand_of_cards[idx - 1], hand_of_cards[idx + 1])
+                        or hand_of_cards[idx - 1].card_rank != CardRanks.SILVER
                     )
-                    or bronze_item in [0, len(hand_of_cards) - 1]
                 )
-            ),
-            None,
-        )
+                or idx in [0, len(hand_of_cards) - 1]
+            )
+        ]
+
+        # Prefer candidates WITHOUT a merge partner (preserve merge potential for silvers)
+        lonely_candidates = [idx for idx in candidates if not self._has_bronze_merge_partner(hand_of_cards, idx)]
+        next_idx = lonely_candidates[0] if lonely_candidates else (candidates[0] if candidates else None)
 
         if next_idx is None:
             # There's no bronze card to play! Simply move the rightmost two cards
@@ -513,6 +512,16 @@ class BirdFloor4BattleStrategy(IBattleStrategy):
             return -1
 
         return None
+
+    def _has_bronze_merge_partner(self, hand_of_cards: list[Card], idx: int) -> bool:
+        """Check if the bronze card at idx has another bronze card in the hand it could merge with."""
+        card = hand_of_cards[idx]
+        if card.card_rank != CardRanks.BRONZE:
+            return False
+        for j, other in enumerate(hand_of_cards):
+            if j != idx and other.card_rank == CardRanks.BRONZE and determine_card_merge(card, other):
+                return True
+        return False
 
     def _make_silver_merge(self, hand_of_cards: list[Card]):
         """See if we can make a silver merge"""
