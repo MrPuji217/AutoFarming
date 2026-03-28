@@ -46,7 +46,7 @@ class DemonicBeastFarmer(IFarmer, abc.ABC):
     num_victories = 0
     num_losses = 0
 
-    # Survives FarmingFactory crash recovery (new instance); same pattern as num_victories
+    # Beast search swipe counter; class-level to survive FarmingFactory crash recovery (same pattern as num_victories).
     _swipe_attempts = 0
 
     def __init__(
@@ -78,6 +78,7 @@ class DemonicBeastFarmer(IFarmer, abc.ABC):
         # Save the image we want
         self.db_image = demonic_beast_image
 
+
         # Save the logger
         self.logger = logger
 
@@ -107,6 +108,7 @@ class DemonicBeastFarmer(IFarmer, abc.ABC):
         IFarmer.daily_farmer.set_daily_pvp(True)
         IFarmer.daily_farmer.add_complete_callback(self.dailies_complete_callback)
 
+
     def exit_message(self):
         self.logger.info(
             f"We beat {DemonicBeastFarmer.num_victories} floors, {DemonicBeastFarmer.num_floor_3_victories} times floor 3, and lost {DemonicBeastFarmer.num_losses} times."
@@ -119,10 +121,9 @@ class DemonicBeastFarmer(IFarmer, abc.ABC):
         """This should be the original state. Let's go to the Demonic Beast menu"""
         screenshot, window_location = capture_window()
 
-        # Post-reset UI: scroll so floor selection is visible (shared bird/deer/dogs templates)
-        if find(vio.floor_3_cleared_db, screenshot):
-            print("Cleared-floor / reset UI detected, scrolling to reveal floors...")
-            drag_im((530, 530), (530, 430), window_location, sleep_after_click=0.5, drag_duration=0.7)
+        if DemonicBeastFarmer.current_floor == 1 and find(vio.floor_3_cleared_db, screenshot):
+            print("Detected floor cleared image, moving to RESETTING_DB...")
+            self.current_state = States.RESETTING_DB
             return
 
         # First of all, check whether it's time to do our dailies!
@@ -344,7 +345,7 @@ class DemonicBeastFarmer(IFarmer, abc.ABC):
         # Click on the confirmation window...
         if find_and_click(vio.ok_main_button, screenshot, window_location) or find(vio.set_db_party, screenshot):
             # Scroll down slightly so the floor image becomes detectable again
-            drag_im((530, 530), (530, 430), window_location, sleep_after_click=0.5, drag_duration=0.7)
+            drag_im((530, 530), (530, 430), window_location, sleep_after_click=3.0, drag_duration=1.2)
             print("Moving to the original state, GOING_TO_DB")
             self.current_state = States.GOING_TO_DB
             return

@@ -158,8 +158,9 @@ floor_3_cleared_db = MultiVision(
     # Deer floor 3 cleared images
     "demonic_beasts\\floor_3_cleared_deer.png",
     "demonic_beasts\\floor_3_cleared_2_deer.png",
-    # Dogs boss screen after reset ("cleaned")
-    "demonic_beasts\\skollandhati_cleaned.png",
+    # Dogs floor 3 cleared images
+    "demonic_beasts\\floor_3_cleared_skollandhati_cleaned.png",
+    "demonic_beasts\\floor_3_cleared_2_skollandhati.png",
     image_name="floor_3_cleared_db",
 )
 available_floor = Vision("demonic_beasts\\available_floor.png")
@@ -349,7 +350,6 @@ legendary_boss_left_arrow = Vision("legendary_boss\\lb_left.png")
 legendary_boss_right_arrow = Vision("legendary_boss\\lb_right.png")
 legendary_boss_min_button = Vision("legendary_boss\\lb_min_btn.png")
 legendary_boss_final_score = Vision("legendary_boss\\lb_final_score.png")
-
 
 # For demon farming
 boss_menu = Vision("demons\\demons.jpg")
