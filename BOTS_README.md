@@ -52,6 +52,16 @@ In `scripts/DeerFloor4Farmer.py`. It needs the following team:
 Start the script from within the Deer floor selection screen.<br>
 **Note** that all units should have attack gear. The current expected win rate is of 60% with Tyr, 30% with Hel.<br>
 
+## Floor 4 of Dogs
+
+Recommended team:
+* Merlin Escanor
+* Lr Roxy
+* Red Thonar
+* Nas (red tarm)
+
+**Important**: Nas should be lowest hp so that he doesn't get nuked on phase 3.
+
 ## Hraesvelgr (Bird) farming script
 
 It's named `scripts/BirdFarmer.py`, and it does what its name says: It farms floors 1-3 of the Bird uninterruptedly, even when stamina is depleted or a fight is lost.
